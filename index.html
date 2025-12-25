@@ -259,6 +259,7 @@ function stage4(){
 }
 
 /* ---------- 第五关 ---------- */
+/* ---------- 第五关 ---------- */
 function stage5(){
   app.innerHTML=`
     <div class="stage">
@@ -266,30 +267,59 @@ function stage5(){
       <p style="font-size:24px">撸他 赶紧的</p>
     </div>
   `;
+  
   const gift=document.getElementById("gift");
   let startY=null, moves=0, scale=1, acc=0;
   const threshold=10;
 
-  document.onpointerdown=e=>startY=e.clientY;
-  document.onpointermove=e=>{
+  // 開始拖動
+  function startMove(e){
+    startY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    e.preventDefault();
+  }
+
+  // 拖動中
+  function onMove(e){
     if(startY===null) return;
-    acc+=Math.abs(e.clientY-startY);
-    startY=e.clientY;
+    const y = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+    acc += Math.abs(y - startY);
+    startY = y;
     while(acc>=threshold){
       moves++;
-      scale+=0.002;
-      acc-=threshold;
+      scale += 0.002;
+      acc -= threshold;
     }
     gift.style.transform=`scale(${scale})`;
+
     if(moves>=300){
       app.innerHTML="<h1>马适，圣诞快乐<br>我爱你 🎄</h1>";
-      document.onpointerdown=null;
-      document.onpointermove=null;
+      // 移除事件
+      gift.removeEventListener('mousedown', startMove);
+      gift.removeEventListener('mousemove', onMove);
+      gift.removeEventListener('mouseup', endMove);
+      gift.removeEventListener('mouseleave', endMove);
+      gift.removeEventListener('touchstart', startMove);
+      gift.removeEventListener('touchmove', onMove);
+      gift.removeEventListener('touchend', endMove);
     }
-  };
-  document.onpointerup=()=>startY=null;
-}
+  }
 
+  // 結束拖動
+  function endMove(){
+    startY = null;
+  }
+
+  // 綁定滑鼠事件
+  gift.addEventListener('mousedown', startMove);
+  gift.addEventListener('mousemove', onMove);
+  gift.addEventListener('mouseup', endMove);
+  gift.addEventListener('mouseleave', endMove);
+
+  // 綁定觸控事件（手機）
+  gift.addEventListener('touchstart', startMove);
+  gift.addEventListener('touchmove', onMove);
+  gift.addEventListener('touchend', endMove);
+}
 /* ========= 启动 ========= */
 passwordGate();
 </script>
