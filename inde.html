@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>和我一起走到最后吧</title>
+
+<style>
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-family:system-ui;
+  color:#fff;
+  background:
+    radial-gradient(circle at top, rgba(255,255,255,.15), transparent 60%),
+    linear-gradient(160deg,#1b1f3b,#0b0d1a);
+}
+#app{
+  width:100%;
+  max-width:380px;
+  padding:24px;
+  text-align:center;
+}
+button{
+  margin-top:28px;
+  padding:12px 32px;
+  font-size:20px;
+  background:none;
+  border:1px solid rgba(255,255,255,.6);
+  color:#fff;
+}
+.stage{
+  margin-top:30px;
+  min-height:300px;
+  position:relative;
+}
+
+/* ---------- 第二关 ---------- */
+#puzzleArea{position:relative;height:260px;}
+#target{
+  position:absolute;
+  left:50%;top:50%;
+  transform:translate(-50%,-50%);
+  width:140px;
+}
+#piece{
+  position:absolute;
+  left:20px;
+  bottom:20px;
+  width:120px;
+  cursor:grab;
+  touch-action:none;
+}
+#piece svg{width:100%;pointer-events:none;}
+
+/* ---------- 第三关 ---------- */
+.person{
+  position:absolute;
+  cursor:pointer;
+  user-select:none;
+}
+
+/* ---------- 第四关 ---------- */
+#book{
+  border:4px solid rgba(255,255,255,.5);
+  padding:100px;
+  min-height:600px;
+  font-size:18px;
+  max-width:760px;
+  margin:0 auto;
+}
+
+/* ---------- 第五关 ---------- */
+#gift{
+  font-size:64px;
+  transition:transform .1s;
+  user-select:none;
+}
+
+
+</style>
+</head>
+
+<body>
+
+<!-- 🎵 背景音樂（請換成你的 HTTPS 音樂網址） -->
+<audio id="bgm" src="123.mp3" loop></audio>
+
+<div id="app"></div>
+
+<script>
+const app = document.getElementById("app");
+const bgm = document.getElementById("bgm");
+
+/* ========= 密码入口 ========= */
+const PASSWORD = "20250501"; // ← 改成你們的暗號
+
+function passwordGate(){
+  app.innerHTML = `
+    <p style="font-size:28px">
+      输入暗号<br>
+      才能解锁🎁 
+    </p>
+    <input id="pwd" type="password"
+      style="font-size:22px;padding:10px;width:80%;text-align:center;">
+    <br>
+    <button onclick="checkPassword()">解锁</button>
+  `;
+}
+
+function checkPassword(){
+  const val = document.getElementById("pwd").value;
+  if(val === PASSWORD){
+    bgm.volume = 0.5;
+    bgm.play().catch(()=>{});
+    stage1();
+  }else{
+    alert("傻子连这都不知道，记得我们的第一次吗?<br>202xxxxx");
+  }
+}
+
+/* ---------- 第一关 ---------- */
+function stage1(){
+  app.innerHTML = `
+    <p style="font-size:28px">
+      哥，我们已经处了半年了<br>
+      知道嗎?<br>
+      一路上跌跌撞撞的<br>
+      有时候心很慌手脑子很乱<br>
+很笨吧<br>
+谈恋爱谈得乱七八糟的<br>
+哥<br>
+谢谢你这段时间陪着我<br>
+以后的路<br>再牵着你的手一起走<br>
+好吗?<br>
+    </p>
+    <button onclick="stage2()">好</button>
+  `;
+}
+
+/* ---------- 第二关 ---------- */
+function stage2(){
+  app.innerHTML = `
+    <div class="stage">
+      <div id="puzzleArea">
+        <svg id="target" viewBox="0 0 100 90">
+          <path d="M50 85 C10 60,0 35,25 20
+                   C40 10,50 25,50 25
+                   C50 25,60 10,75 20
+                   C100 35,90 60,50 85"
+                fill="none" stroke="white"
+                stroke-width="3" stroke-dasharray="6,6"/>
+        </svg>
+        <div id="piece">
+          <svg viewBox="0 0 100 90">
+            <path d="M50 85 C10 60,0 35,25 20
+                     C40 10,50 25,50 25
+                     C50 25,60 10,75 20
+                     C100 35,90 60,50 85"
+                  fill="crimson"/>
+          </svg>
+        </div>
+      </div>
+      <p style="font-size:24px">唯一属于你的位置</p>
+    </div>
+  `;
+
+  const piece = document.getElementById("piece");
+  let dragging=false, sx=0, sy=0;
+
+  piece.onpointerdown = e=>{
+    dragging=true;
+    sx=e.clientX-piece.offsetLeft;
+    sy=e.clientY-piece.offsetTop;
+    piece.setPointerCapture(e.pointerId);
+  };
+  piece.onpointermove = e=>{
+    if(!dragging) return;
+    piece.style.left=(e.clientX-sx)+"px";
+    piece.style.top =(e.clientY-sy)+"px";
+  };
+  piece.onpointerup = ()=>{
+    dragging=false;
+    const rect=piece.getBoundingClientRect();
+    if(Math.abs(rect.left+60-window.innerWidth/2)<40 &&
+       Math.abs(rect.top+60-window.innerHeight/2)<40){
+      app.innerHTML=`
+        <p style="font-size:28px">
+          你是我心里<br>最重要的一片拼图<br>沒有你<br>我将不再是我
+        </p>
+        <button onclick="stage3()">继续</button>
+      `;
+    }
+  };
+}
+
+/* ---------- 第三关 ---------- */
+function stage3(){
+  app.innerHTML=`
+    <div class="stage" id="people" style="height:300px;"></div>
+    <p style="font-size:24px">经历过才如此奢望</p>
+  `;
+  const box=document.getElementById("people");
+  let people=[];
+  const cx=box.clientWidth/2, cy=150;
+
+  for(let i=0;i<20;i++){
+    const p=document.createElement("div");
+    const size=90;
+    p.className="person";
+    p.textContent="🧍";
+    p.style.fontSize=size+"px";
+    p.style.left=(cx+Math.random()*300-150-size/2)+"px";
+    p.style.top =(cy+Math.random()*300-150-size/2)+"px";
+    p.onclick=()=>{
+      p.remove();
+      people=people.filter(x=>x!==p);
+      if(people.length===2){
+        app.innerHTML=`
+          <p style="font-size:28px">
+            只有我们两人的世界，<br>
+            是我最幸福的事
+          </p>
+          <button onclick="stage4()">继续</button>
+        `;
+      }
+    };
+    people.push(p);
+    box.appendChild(p);
+  }
+}
+
+/* ---------- 第四关 ---------- */
+function stage4(){
+  let page=0;
+  const pages=[
+    "不知道从何时起被你声音吸引住了<br>那也成了我奔向你的契机",
+    "你和别人在一起地场景<br>我发现<br>原来我的心这么脆弱",
+    "每一次的争吵<br>每一次地离开<br>我才知道<br>我已经没办法失去你了",
+    " ",
+    "后面的故事，<br>我们一起书写好吗?"
+  ];
+  app.innerHTML=`
+    <div id="book">${pages[0]}</div>
+    <button id="next">翻页</button>
+  `;
+  document.getElementById("next").onclick=()=>{
+    page++;
+    if(page<pages.length){
+      document.getElementById("book").innerHTML=pages[page];
+    }else{
+      stage5();
+    }
+  };
+}
+
+/* ---------- 第五关 ---------- */
+function stage5(){
+  app.innerHTML=`
+    <div class="stage">
+      <div id="gift">🎁</div>
+      <p style="font-size:24px">撸他 赶紧的</p>
+    </div>
+  `;
+  const gift=document.getElementById("gift");
+  let startY=null, moves=0, scale=1, acc=0;
+  const threshold=10;
+
+  document.onpointerdown=e=>startY=e.clientY;
+  document.onpointermove=e=>{
+    if(startY===null) return;
+    acc+=Math.abs(e.clientY-startY);
+    startY=e.clientY;
+    while(acc>=threshold){
+      moves++;
+      scale+=0.002;
+      acc-=threshold;
+    }
+    gift.style.transform=`scale(${scale})`;
+    if(moves>=300){
+      app.innerHTML="<h1>马适，圣诞快乐<br>我爱你 🎄</h1>";
+      document.onpointerdown=null;
+      document.onpointermove=null;
+    }
+  };
+  document.onpointerup=()=>startY=null;
+}
+
+/* ========= 启动 ========= */
+passwordGate();
+</script>
+</body>
+</html>
